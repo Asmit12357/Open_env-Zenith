@@ -1,9 +1,8 @@
-openenv
+openenv[all]
 pydantic
 fastapi
 uvicorn
 openai
 httpx
 python-multipart
-
 
