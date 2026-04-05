@@ -1,3 +1,5 @@
+
+
 import sys
 import os
 import argparse
@@ -44,3 +46,7 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=7860) 
     args = parser.parse_args()
     main(port=args.port)
+
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "Medical Triage RL Environment is Running"}
