@@ -1,8 +1,8 @@
-openenv[all]
-pydantic
+openenv-core
+openenv
 fastapi
 uvicorn
 openai
-httpx
+pydantic
 python-multipart
 
