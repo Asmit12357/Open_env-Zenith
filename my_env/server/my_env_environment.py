@@ -10,7 +10,7 @@ from openenv.core.env_server.types import State
 
 class MyAction(Action):
     """The AI Agent's diagnostic decision."""
-    message: str = Field(
+    action: str = Field(
         ..., 
         description="The triage level: 'Home Care', 'Clinic', or 'Emergency'"
     )
