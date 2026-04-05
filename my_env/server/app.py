@@ -1,16 +1,27 @@
+import sys
+import os
 import argparse
 import uvicorn
 from openenv.core.env_server.http_server import create_app
 
-# Handling imports for both local and package-level execution
+# 1. Path Injection: Tell Python to look one level up in 'my_env'
+# This allows app.py (in server/) to find models.py (in my_env/)
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+# 2. Cleaned Imports
+# Since 'my_env_environment.py' is in the same folder as this script (server/),
+# we import it directly. Models comes from the parent_dir we just added.
 try:
     from models import MyAction, MyObservation
-    from server.my_env_environment import MyEnvironment
-except ModuleNotFoundError:
-    from models import MyAction, MyObservation
-    from server.my_env_environment import MyEnvironment
+    from my_env_environment import MyEnvironment
+except ImportError:
+    # Fallback for alternative execution contexts
+    from ..models import MyAction, MyObservation
+    from .my_env_environment import MyEnvironment
 
-# This creates the FastAPI server using your Medical Logic
+# 3. Create the FastAPI server
 app = create_app(
     MyEnvironment,
     MyAction,
@@ -19,18 +30,17 @@ app = create_app(
     max_concurrent_envs=5,       
 )
 
-# --- ADDED FOR HUGGING FACE HEALTH CHECK ---
+# --- HUGGING FACE HEALTH CHECK ---
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
-# ------------------------------------------
+# ---------------------------------
 
-def main(host: str = "0.0.0.0", port: int = 7860): # Defaulted to 7860
+def main(host: str = "0.0.0.0", port: int = 7860):
     uvicorn.run(app, host=host, port=port)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    # Updated default to 7860 for Hugging Face compatibility
     parser.add_argument("--port", type=int, default=7860) 
     args = parser.parse_args()
     main(port=args.port)
