@@ -1,0 +1,9 @@
+openenv
+pydantic
+fastapi
+uvicorn
+openai
+httpx
+python-multipart
+
+

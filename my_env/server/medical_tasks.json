@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "symptoms": "Sharp, crushing chest pain, radiating to left jaw, profuse sweating, and shortness of breath.",
+    "correct_triage": "Emergency",
+    "explanation": "Classic signs of a Myocardial Infarction (Heart Attack). Requires immediate intervention."
+  },
+  {
+    "id": 2,
+    "symptoms": "Mild headache for 2 hours, no fever, no blurred vision. Patient was coding in a dark room all day.",
+    "correct_triage": "Home Care",
+    "explanation": "Likely a tension headache or eye strain. Does not require emergency resources."
+  },
+  {
+    "id": 3,
+    "symptoms": "High fever (103.5F), severe neck stiffness, and painful sensitivity to bright lights.",
+    "correct_triage": "Emergency",
+    "explanation": "Red-flag symptoms for Meningitis, a life-threatening bacterial or viral infection."
+  },
+  {
+    "id": 4,
+    "symptoms": "Sprained ankle after a fall. Can bear weight with slight pain. Minimal swelling, no bruising.",
+    "correct_triage": "Home Care",
+    "explanation": "Grade 1 sprain. RICE (Rest, Ice, Compression, Elevation) is sufficient for initial care."
+  },
+  {
+    "id": 5,
+    "symptoms": "Sudden facial drooping on one side, unable to raise both arms, and slurred speech.",
+    "correct_triage": "Emergency",
+    "explanation": "FAST signs of a Stroke. Every minute counts for brain tissue preservation."
+  },
+  {
+    "id": 6,
+    "symptoms": "Small, red, itchy bumps on the arm after walking through tall grass. No difficulty breathing.",
+    "correct_triage": "Home Care",
+    "explanation": "Likely contact dermatitis or insect bites. Manageable with over-the-counter antihistamines."
+  },
+  {
+    "id": 7,
+    "symptoms": "Deep laceration on the forearm from a kitchen knife. Bleeding is heavy and not stopping with pressure.",
+    "correct_triage": "Emergency",
+    "explanation": "Uncontrolled hemorrhage requires professional wound closure and possible stitches."
+  },
+  {
+    "id": 8,
+    "symptoms": "Persistent dry cough for 3 days, no fever, no chest pain, patient feels energetic.",
+    "correct_triage": "Home Care",
+    "explanation": "Likely a minor viral upper respiratory infection or allergies. Monitor at home."
+  },
+  {
+    "id": 9,
+    "symptoms": "Sudden onset of 'the worst headache of my life' (Thunderclap headache). Feeling nauseous.",
+    "correct_triage": "Emergency",
+    "explanation": "Possible Subarachnoid Hemorrhage (brain bleed). This is a critical medical emergency."
+  },
+  {
+    "id": 10,
+    "symptoms": "Stomach ache after a large spicy meal. Feeling bloated and has some heartburn.",
+    "correct_triage": "Home Care",
+    "explanation": "Symptoms of Dyspepsia (indigestion). Over-diagnosis as an emergency clogs hospital resources."
+  },
+  {
+    "id": 11,
+    "symptoms": "Minor sunburn on shoulders after 2 hours at the beach. Skin is red and warm but no blisters are present.",
+    "correct_triage": "Home Care",
+    "explanation": "First-degree burn. Manageable with hydration and topical cooling; not a clinical priority."
+  },
+  {
+    "id": 12,
+    "symptoms": "Shortness of breath, audible wheezing, and chest tightness during a known asthma flare-up.",
+    "correct_triage": "Emergency",
+    "explanation": "Acute respiratory distress requires immediate intervention to prevent airway closure."
+  },
+  {
+    "id": 13,
+    "symptoms": "Dull earache and muffled hearing in the right ear for the last 48 hours. No fever or dizziness.",
+    "correct_triage": "Clinic",
+    "explanation": "Likely ear infection or wax buildup. Requires a professional exam but is not life-threatening."
+  },
+  {
+    "id": 14,
+    "symptoms": "Sudden onset of 'the worst headache of my life' described as a thunderclap. Intense nausea.",
+    "correct_triage": "Emergency",
+    "explanation": "Classic presentation of a subarachnoid hemorrhage (brain bleed). Critical emergency."
+  },
+  {
+    "id": 15,
+    "symptoms": "Sharp, needle-like chest pain that only occurs when taking a very deep breath. No shortness of breath.",
+    "correct_triage": "Home Care",
+    "explanation": "Often pleuritic or musculoskeletal pain. If no other cardiac red flags, it doesn't require the ER."
+  },
+  {
+    "id": 16,
+    "symptoms": "Bee sting on the arm. Throat is feeling tight, difficulty swallowing, and visible hives spreading.",
+    "correct_triage": "Emergency",
+    "explanation": "Anaphylaxis is a systemic allergic reaction that can lead to rapid shock and death."
+  },
+  {
+    "id": 17,
+    "symptoms": "Eye is red, itchy, and has a yellow crusty discharge in the morning. Vision is otherwise clear.",
+    "correct_triage": "Clinic",
+    "explanation": "Likely bacterial conjunctivitis (pink eye). Needs prescription drops to prevent spread."
+  },
+  {
+    "id": 18,
+    "symptoms": "Mild low back stiffness after lifting furniture yesterday. Pain is localized and doesn't shoot down legs.",
+    "correct_triage": "Home Care",
+    "explanation": "Common muscle strain. Rest and heat are sufficient; over-diagnosing increases medical costs."
+  },
+  {
+    "id": 19,
+    "symptoms": "Coughing up small amounts of bright red blood after a session of intense coughing.",
+    "correct_triage": "Emergency",
+    "explanation": "Hemoptysis can indicate serious underlying issues like pulmonary embolism or advanced infection."
+  },
+  {
+    "id": 20,
+    "symptoms": "Increased thirst, frequent urination for two weeks, and unexplained blurred vision.",
+    "correct_triage": "Clinic",
+    "explanation": "Strong indicators of new-onset diabetes. Needs blood work and diagnosis within days, not hours."
+  },
+  {
+    "id": 21,
+    "symptoms": "Sudden, painless loss of vision in one eye, described as a 'curtain' falling over the field of view.",
+    "correct_triage": "Emergency",
+    "explanation": "Possible retinal detachment. Immediate specialist care is needed to save the eye."
+  },
+  {
+    "id": 22,
+    "symptoms": "A small, pea-sized hard bump on the wrist. It hasn't changed size in months and is painless.",
+    "correct_triage": "Clinic",
+    "explanation": "Likely a ganglion cyst. Needs evaluation to confirm, but is a routine outpatient issue."
+  },
+  {
+    "id": 23,
+    "symptoms": "Nausea, one episode of vomiting, and watery diarrhea after eating leftover chicken 6 hours ago.",
+    "correct_triage": "Home Care",
+    "explanation": "Self-limiting viral or bacterial gastroenteritis. Fluids and rest are the primary treatments."
+  },
+  {
+    "id": 24,
+    "symptoms": "High fever of 104°F accompanied by a purple, blotchy rash that does not disappear when pressed.",
+    "correct_triage": "Emergency",
+    "explanation": "Non-blanching rash with fever suggests meningococcal septicemia, a fatal bacterial infection."
+  },
+  {
+    "id": 25,
+    "symptoms": "A small wooden splinter under the skin. The area is slightly tender but not red or throbbing.",
+    "correct_triage": "Home Care",
+    "explanation": "Minor foreign body. Can be removed with sterilized tweezers at home."
+  },
+  {
+    "id": 26,
+    "symptoms": "Heart feels like it is racing or skipping beats after drinking 4 energy drinks. No chest pain.",
+    "correct_triage": "Home Care",
+    "explanation": "Caffeine-induced palpitations. Symptoms usually resolve as the stimulant leaves the system."
+  },
+  {
+    "id": 27,
+    "symptoms": "Unable to pass any urine for 12 hours. Lower abdomen is swollen and extremely painful.",
+    "correct_triage": "Emergency",
+    "explanation": "Acute urinary retention can cause kidney damage and bladder rupture if not catheterized."
+  },
+  {
+    "id": 28,
+    "symptoms": "Heard a 'pop' in the knee while playing sports. Knee is now swollen and 'locks' when trying to walk.",
+    "correct_triage": "Clinic",
+    "explanation": "Likely an ACL or meniscus tear. Needs imaging and ortho referral, but is not life-threatening."
+  },
+  {
+    "id": 29,
+    "symptoms": "Itchy red hives appeared on the chest after using a new brand of laundry detergent.",
+    "correct_triage": "Home Care",
+    "explanation": "Contact dermatitis. Removal of the irritant and antihistamines are standard home care."
+  },
+  {
+    "id": 30,
+    "symptoms": "Pulsing, severe pain in a molar that radiates to the jaw. Unable to sleep due to the pain.",
+    "correct_triage": "Clinic",
+    "explanation": "Dental abscess or severe decay. Urgent dental clinic visit needed for antibiotics/drainage."
+  }
+]
