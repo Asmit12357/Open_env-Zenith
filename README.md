@@ -1,16 +1,21 @@
 ---
-title: My Env Environment Server
-emoji: ⏰
-colorFrom: green
-colorTo: yellow
+title: Medical Triage RL
+emoji: 🏥
+colorFrom: blue
+colorTo: red
 sdk: docker
+app_file: my_env/server/app.py 
+app_port: 7860
 pinned: false
-app_port: 8000
-base_path: /web
-tags:
-  - openenv
 ---
 
+# OpenEnv Zenith: Medical Triage RL
+An RL environment built for the Meta x Scaler Hackathon 2026. This project uses OpenEnv to simulate and analyze medical triage scenarios.
+
+## Features
+* **Automated Triage:** AI-driven classification of patient symptoms.
+* **OpenEnv Framework:** Standardized RL environment for reproducible results.
+* **Custom Reward Logic:** Normalized scoring (0.0 - 1.0) based on clinical accuracy.
 # My Env Environment
 
 A simple test environment that echoes back messages. Perfect for testing the env APIs as well as demonstrating environment usage patterns.
