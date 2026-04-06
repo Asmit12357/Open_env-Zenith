@@ -7,7 +7,7 @@ from pydantic import Field
 from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
 # Ensure these match exactly what you named them in models.py
-from models import MyAction, MyObservation 
+from ..models import MyAction, MyObservation
 
 class MyEnvironment(Environment):
     SUPPORTS_CONCURRENT_SESSIONS: bool = True
