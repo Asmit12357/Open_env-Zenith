@@ -1,12 +1,13 @@
 import json
 import os
+import random
 from uuid import uuid4
 from typing import Optional, Dict, Any
 from pydantic import Field
 
 from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
-# Ensure these match exactly what you named them in models.py
+# Ensure this relative import works with __init__.py in both folders
 from ..models import MyAction, MyObservation
 
 class MyEnvironment(Environment):
@@ -15,58 +16,67 @@ class MyEnvironment(Environment):
     def __init__(self):
         self._state = State(episode_id=str(uuid4()), step_count=0)
         
-        # Load tasks
+        # Path logic for JSON in same folder as this script
         data_path = os.path.join(os.path.dirname(__file__), 'medical_tasks.json')
         try:
             with open(data_path, 'r') as f:
                 self.tasks = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
-            self.tasks = [{"id": 0, "description": "Headache", "correct_triage": "Home Care"}]
+            # Fallback keys match the reset logic
+            self.tasks = [{"id": 0, "symptoms": "Headache", "correct_triage": "Home Care"}]
             
         self.current_task = None
 
     def reset(self, seed=None, options=None):
-        # 1. Initialize random generator if seed is provided
+        super().reset(seed=seed)
+        
         if seed is not None:
-            import random
             random.seed(seed)
         
-        # 2. Pick the patient using the seed logic
+        # 1. Reproducible patient selection
         patient_index = seed % len(self.tasks) if seed is not None else 0
         self.current_task = self.tasks[patient_index]
         self._state.step_count = 0
         
-        # 3. Construct Observation
-        # Note: We use 'description' because that's what's in your JSON
-        obs_text = self.current_task.get("description", "No description available")
+        # 2. Store active task info in state for session safety
+        self._state.metadata["active_task_id"] = self.current_task.get("id", patient_index)
+       
+        obs_text = self.current_task.get("symptoms", "No symptoms listed")
         
-        observation = MyObservation(
+        return MyObservation(
             echoed_message=obs_text,
             message_length=len(obs_text),
             done=False,
             reward=0.0
-        )
-        
-        return observation, {}
+        ), {}
 
     def step(self, action: MyAction) -> MyObservation:
+        # 3. Increment step count immediately
         self._state.step_count += 1
         
-        # FIX: Your MyAction model uses 'message' as an alias
-        agent_choice = (action.message or action.treatment or "").strip().lower()
-        actual_choice = self.current_task['correct_triage'].lower()
+        if not self.current_task:
+            # Fallback if reset wasn't called properly
+            self.current_task = self.tasks[0]
         
-        # Reward Logic (0.0 to 1.0)
+        # 4. Null-safe and whitespace-safe extraction
+        msg = action.message if action.message else ""
+        treat = action.treatment if action.treatment else ""
+        
+        # We strip both sides to ensure "Emergency " matches "emergency"
+        agent_choice = (msg or treat).strip().lower()
+        actual_choice = str(self.current_task.get('correct_triage', "")).strip().lower()
+        
+        # 5. Reward Logic (0.0 to 1.0)
         reward = 0.0
         if agent_choice == actual_choice:
             reward = 1.0
         else:
             if actual_choice == "home care" and agent_choice == "emergency":
-                reward = 0.1
+                reward = 0.1  # Over-diagnosis penalty
             elif actual_choice == "emergency" and agent_choice == "home care":
-                reward = 0.0
+                reward = 0.0  # Critical under-diagnosis penalty
             else:
-                reward = 0.4
+                reward = 0.4  # Minor mismatch (e.g., Clinic vs Emergency)
 
         return MyObservation(
             echoed_message=f"Diagnosis: {agent_choice}. Reality: {actual_choice}",
@@ -74,8 +84,9 @@ class MyEnvironment(Environment):
             done=True, 
             reward=reward,
             metadata={
-                "task_id": self.current_task.get("id", 0),
-                "step": self._state.step_count
+                "task_id": self._state.metadata.get("active_task_id", 0),
+                "step": self._state.step_count,
+                "explanation": self.current_task.get("explanation", "No explanation provided")
             },
         )
 
