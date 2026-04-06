@@ -28,26 +28,20 @@ class MyEnvironment(Environment):
         self.current_task = None
 
     def reset(self, seed=None, options=None):
-        super().reset(seed=seed)
+        # FIX: Ensure seed is NEVER None during the math operation
+        safe_seed = seed if (seed is not None) else 0
         
-        if seed is not None:
-            random.seed(seed)
-        
-        # 1. Reproducible patient selection
-        patient_index = seed % len(self.tasks) if seed is not None else 0
-        self.current_task = self.tasks[patient_index]
+        random.seed(safe_seed)
         self._state.step_count = 0
         
-        # 2. Store active task info in state for session safety
-        self._state.metadata["active_task_id"] = self.current_task.get("id", patient_index)
-       
-        obs_text = self.current_task.get("symptoms", "No symptoms listed")
+        # Now this will never crash
+        patient_index = safe_seed % len(self.tasks)
+        self.current_task = self.tasks[patient_index]
         
+        # ... rest of your code ...
         return MyObservation(
-            echoed_message=obs_text,
-            message_length=len(obs_text),
-            done=False,
-            reward=0.0
+            echoed_message=self.current_task.get("symptoms", "No symptoms"),
+            message_length=len(self.current_task.get("symptoms", ""))
         ), {}
 
     def step(self, action: MyAction) -> MyObservation:
