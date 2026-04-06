@@ -28,49 +28,54 @@ class MyEnvironment(Environment):
         self.current_task = None
 
     def reset(self, seed=None, options=None):
-        # FIX: Ensure seed is NEVER None during the math operation
+        # FIX: Ensure seed is NEVER None during math operations
         safe_seed = seed if (seed is not None) else 0
         
         random.seed(safe_seed)
         self._state.step_count = 0
         
-        # Now this will never crash
+        # Select patient
         patient_index = safe_seed % len(self.tasks)
         self.current_task = self.tasks[patient_index]
         
-        # ... rest of your code ...
+        # IMPORTANT: Store the ID in state metadata for session safety
+        # This was missing in your last snippet!
+        self._state.metadata["active_task_id"] = self.current_task.get("id", patient_index)
+       
+        obs_text = self.current_task.get("symptoms", "No symptoms listed")
+        
         return MyObservation(
-            echoed_message=self.current_task.get("symptoms", "No symptoms"),
-            message_length=len(self.current_task.get("symptoms", ""))
+            echoed_message=obs_text,
+            message_length=len(obs_text),
+            done=False,
+            reward=0.0
         ), {}
 
     def step(self, action: MyAction) -> MyObservation:
-        # 3. Increment step count immediately
         self._state.step_count += 1
         
         if not self.current_task:
             # Fallback if reset wasn't called properly
             self.current_task = self.tasks[0]
         
-        # 4. Null-safe and whitespace-safe extraction
+        # Extraction (Handles None and extra spaces)
         msg = action.message if action.message else ""
         treat = action.treatment if action.treatment else ""
         
-        # We strip both sides to ensure "Emergency " matches "emergency"
         agent_choice = (msg or treat).strip().lower()
         actual_choice = str(self.current_task.get('correct_triage', "")).strip().lower()
         
-        # 5. Reward Logic (0.0 to 1.0)
+        # Reward Logic (0.0 to 1.0)
         reward = 0.0
         if agent_choice == actual_choice:
             reward = 1.0
         else:
             if actual_choice == "home care" and agent_choice == "emergency":
-                reward = 0.1  # Over-diagnosis penalty
+                reward = 0.1
             elif actual_choice == "emergency" and agent_choice == "home care":
-                reward = 0.0  # Critical under-diagnosis penalty
+                reward = 0.0
             else:
-                reward = 0.4  # Minor mismatch (e.g., Clinic vs Emergency)
+                reward = 0.4
 
         return MyObservation(
             echoed_message=f"Diagnosis: {agent_choice}. Reality: {actual_choice}",
