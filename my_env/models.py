@@ -4,18 +4,15 @@ Defines the communication between the AI Agent and the Diagnostic Triage Logic.
 """
 
 from openenv.core.env_server.types import Action, Observation
-from pydantic import Field
-from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field # Added Field here
+from typing import Optional, Dict, Any # Added Dict and Any here
 
-
-class MyAction(Action):
-    """The AI Agent's diagnostic decision."""
-
-    message: str = Field(
-        ..., 
-        description="The triage level: 'Home Care', 'Clinic', or 'Emergency'"
-    )
-
+class MyAction(BaseModel):
+    # Make fields optional or provide defaults to prevent "Field Required" crashes
+    action_id: Optional[int] = 0
+    treatment: Optional[str] = ""
+    # Aliasing 'message' covers the 422 error we saw in Swagger earlier
+    message: Optional[str] = ""
 
 class MyObservation(Observation):
     """What the AI Agent sees and the feedback it receives."""
@@ -28,7 +25,7 @@ class MyObservation(Observation):
         default=0, 
         description="Technical field for internal tracking"
     )
-    # We add metadata here so the agent can see its reward and the 'Correct' answer during training
+    # Metadata is great for debugging rewards and clinical explanations
     metadata: Optional[Dict[str, Any]] = Field(
         default_factory=dict, 
         description="Contains rewards, task IDs, and clinical explanations"
