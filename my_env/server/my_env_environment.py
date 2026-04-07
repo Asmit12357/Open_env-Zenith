@@ -7,71 +7,76 @@ from pydantic import Field
 
 from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
-# Ensure this relative import works with __init__.py in both folders
 from ..models import MyAction, MyObservation
 
 class MyEnvironment(Environment):
     SUPPORTS_CONCURRENT_SESSIONS: bool = True
 
     def __init__(self):
+        # Initializing state with a unique ID
         self._state = State(episode_id=str(uuid4()), step_count=0)
         
-        # Path logic for JSON in same folder as this script
-        data_path = os.path.join(os.path.dirname(__file__), 'medical_tasks.json')
+        # Absolute pathing to prevent FileNotFoundError in Docker
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        data_path = os.path.join(base_dir, 'medical_tasks.json')
+        
         try:
             with open(data_path, 'r') as f:
                 self.tasks = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            # Fallback keys match the reset logic
-            self.tasks = [{"id": 0, "symptoms": "Headache", "correct_triage": "Home Care"}]
+        except Exception:
+            # Hard fallback to prevent 500 if file is missing
+            self.tasks = [{"id": 1, "symptoms": "Minor headache", "correct_triage": "Home Care"}]
             
-        self.current_task = None
-        # Initialize a variable to track the task ID safely
-        self.active_task_id = 0
+        self.current_task = self.tasks[0] # Default to first task
+        self.active_task_id = self.current_task.get("id", 1)
 
     def reset(self, seed=None, options=None):
-        # FIX: Ensure seed is NEVER None during math operations
-        safe_seed = seed if (seed is not None) else 0
-        
+        # FIX: Ensure safe_seed is always an int
+        safe_seed = int(seed) if (seed is not None) else 0
         random.seed(safe_seed)
+        
         self._state.step_count = 0
         
-        # Select patient
-        patient_index = safe_seed % len(self.tasks)
-        self.current_task = self.tasks[patient_index]
+        # FIX: Adjusted math so Seed 11 = ID 11 (if IDs start at 1)
+        # Using (safe_seed - 1) handles the zero-index offset
+        idx = (safe_seed - 1) % len(self.tasks) if safe_seed > 0 else 0
+        self.current_task = self.tasks[idx]
+        self.active_task_id = self.current_task.get("id", idx + 1)
         
-        # FIX: Store as a standard attribute, NOT inside self._state
-        self.active_task_id = self.current_task.get("id", patient_index)
-       
         obs_text = self.current_task.get("symptoms", "No symptoms listed")
         
+        # Return observation with reward 0 and done False
         return MyObservation(
-    echoed_message=obs_text,
-    message_length=len(obs_text),
-    done=False,
-    reward=0.0
-)
+            echoed_message=obs_text,
+            message_length=len(obs_text),
+            done=False,
+            reward=0.0
+        )
 
     def step(self, action: MyAction) -> MyObservation:
+        """
+        Executes a step. Defensive logic prevents 500 errors.
+        """
         self._state.step_count += 1
         
-        if not self.current_task:
-            # Fallback if reset wasn't called properly
-            self.current_task = self.tasks[0]
-            self.active_task_id = self.current_task.get("id", 0)
+        # DEFENSIVE: If action is somehow None or empty
+        if not action:
+            return MyObservation(echoed_message="Error: No action provided", reward=0.0, done=True)
+
+        # Extraction logic with fallbacks
+        msg = getattr(action, 'message', "") or ""
+        treat = getattr(action, 'treatment', "") or ""
         
-        # Extraction (Handles None and extra spaces)
-        msg = action.message if action.message else ""
-        treat = action.treatment if action.treatment else ""
-        
+        # Standardize the choice
         agent_choice = (msg or treat).strip().lower()
         actual_choice = str(self.current_task.get('correct_triage', "")).strip().lower()
         
-        # Reward Logic (0.0 to 1.0)
+        # Reward Logic
         reward = 0.0
         if agent_choice == actual_choice:
             reward = 1.0
         else:
+            # Reward shaping for "Safe but wrong" vs "Dangerous"
             if actual_choice == "home care" and agent_choice == "emergency":
                 reward = 0.1
             elif actual_choice == "emergency" and agent_choice == "home care":
@@ -85,9 +90,9 @@ class MyEnvironment(Environment):
             done=True, 
             reward=reward,
             metadata={
-                "task_id": self.active_task_id, # FIX: Use the class attribute
+                "task_id": self.active_task_id,
                 "step": self._state.step_count,
-                "explanation": self.current_task.get("explanation", "No explanation provided")
+                "explanation": self.current_task.get("explanation", "N/A")
             },
         )
 
