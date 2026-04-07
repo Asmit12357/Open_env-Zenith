@@ -46,11 +46,11 @@ class MyEnvironment(Environment):
         obs_text = self.current_task.get("symptoms", "No symptoms listed")
         
         return MyObservation(
-            echoed_message=obs_text,
-            message_length=len(obs_text),
-            done=False,
-            reward=0.0
-        ), {}
+    echoed_message=obs_text,
+    message_length=len(obs_text),
+    done=False,
+    reward=0.0
+)
 
     def step(self, action: MyAction) -> MyObservation:
         self._state.step_count += 1
