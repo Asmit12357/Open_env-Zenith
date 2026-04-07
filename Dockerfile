@@ -36,4 +36,4 @@ USER user
 EXPOSE 7860
 
 # 7. Start the server (Using the correct folder 'my_env')
-CMD ["sh", "-c", "uvicorn my_env.server.app:app --host 0.0.0.0 --port 7860"]
+CMD ["sh", "-c", "uvicorn server.app:app --host 0.0.0.0 --port 7860"]
