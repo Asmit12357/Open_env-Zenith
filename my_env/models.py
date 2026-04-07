@@ -10,9 +10,8 @@ from typing import Optional, Dict, Any # Added Dict and Any here
 class MyAction(BaseModel):
     # Make fields optional or provide defaults to prevent "Field Required" crashes
     action_id: Optional[int] = 0
-    treatment: Optional[str] = ""
-    # Aliasing 'message' covers the 422 error we saw in Swagger earlier
-    message: Optional[str] = ""
+    treatment: Optional[str] = None
+    message: Optional[str] = None
 
 class MyObservation(Observation):
     """What the AI Agent sees and the feedback it receives."""
