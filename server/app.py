@@ -12,13 +12,9 @@ import uvicorn
 from openenv.core.env_server.http_server import create_app
 
 # 2. Absolute Imports (Now Python knows where to look)
-try:
-    from my_env.models import MyAction, MyObservation
-    from my_env.my_env_environment import MyEnvironment
-except ImportError:
-    # Local fallback if the path injection needs a nudge
-    from models import MyAction, MyObservation
-    from my_env_environment import MyEnvironment
+# This replaces the messy try/except block in app.py
+from my_env.models import MyAction, MyObservation
+from server.my_env_environment import MyEnvironment
 
 # 3. Create the FastAPI app
 app = create_app(
