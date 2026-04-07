@@ -21,9 +21,8 @@ COPY --chown=user:user . .
 
 # 5. Environment Variables
 # Fixed to match your "my_env" folder name
-ENV PYTHONPATH="/app:/app/my_env:/app/my_env/server:$PYTHONPATH"
+ENV PYTHONPATH="/app"
 ENV ENABLE_WEB_INTERFACE=true
-# Tell Hugging Face we are using the standard port
 ENV PORT=7860
 
 # 6. Health check (Updated to port 7860)
@@ -36,4 +35,5 @@ USER user
 EXPOSE 7860
 
 # 7. Start the server (Using the correct folder 'my_env')
-CMD ["sh", "-c", "uvicorn server.app:app --host 0.0.0.0 --port 7860"]
+ENV PYTHONPATH="${PYTHONPATH}:/app"
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]
