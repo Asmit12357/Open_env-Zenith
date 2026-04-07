@@ -38,11 +38,14 @@ def health_check():
 
 # -------------------------------------------------------
 
-def main(host: str = "0.0.0.0", port: int = 7860):
-    uvicorn.run(app, host=host, port=port)
+
+def main():
+    """
+    Standard zero-argument main function required by openenv-core validator.
+    It pulls the port from environment variables or defaults to 7860.
+    """
+    port = int(os.environ.get("PORT", 7860))
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=7860) 
-    args = parser.parse_args()
-    main(port=args.port)
+    main()
