@@ -4,7 +4,7 @@ import json
 from openai import OpenAI
 
 # 1. Import your actual environment and models
-from my_env.server.my_env_environment import MyEnvironment
+from server.my_env_environment import MyEnvironment
 from my_env.models import MyAction
 
 # 2. MANDATORY VARIABLES (Updated with Scaler Fallbacks)
