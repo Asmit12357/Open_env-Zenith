@@ -26,6 +26,8 @@ class MyEnvironment(Environment):
             self.tasks = [{"id": 0, "symptoms": "Headache", "correct_triage": "Home Care"}]
             
         self.current_task = None
+        # Initialize a variable to track the task ID safely
+        self.active_task_id = 0
 
     def reset(self, seed=None, options=None):
         # FIX: Ensure seed is NEVER None during math operations
@@ -38,9 +40,8 @@ class MyEnvironment(Environment):
         patient_index = safe_seed % len(self.tasks)
         self.current_task = self.tasks[patient_index]
         
-        # IMPORTANT: Store the ID in state metadata for session safety
-        # This was missing in your last snippet!
-        self._state.metadata["active_task_id"] = self.current_task.get("id", patient_index)
+        # FIX: Store as a standard attribute, NOT inside self._state
+        self.active_task_id = self.current_task.get("id", patient_index)
        
         obs_text = self.current_task.get("symptoms", "No symptoms listed")
         
@@ -57,6 +58,7 @@ class MyEnvironment(Environment):
         if not self.current_task:
             # Fallback if reset wasn't called properly
             self.current_task = self.tasks[0]
+            self.active_task_id = self.current_task.get("id", 0)
         
         # Extraction (Handles None and extra spaces)
         msg = action.message if action.message else ""
@@ -83,7 +85,7 @@ class MyEnvironment(Environment):
             done=True, 
             reward=reward,
             metadata={
-                "task_id": self._state.metadata.get("active_task_id", 0),
+                "task_id": self.active_task_id, # FIX: Use the class attribute
                 "step": self._state.step_count,
                 "explanation": self.current_task.get("explanation", "No explanation provided")
             },
