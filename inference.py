@@ -34,23 +34,23 @@ def run_inference():
     try:
         client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
-        for t_id in task_ids:
-            # --- START LOG ---
+        for i, t_id in enumerate(task_ids): # Add 'i' to vary the seed
             print(f"[START] task={t_id}", flush=True)
             
-            # --- RESET ---
+            # 1. Vary the seed so you get different patients
             try:
-                # Use seed to vary the case if your environment supports it
-                r = requests.post(f"{ENV_URL}/reset", json={"seed": 42}, timeout=20)
-                r_json = r.json()
-                obs = r_json.get("observation", r_json) # Handle flat or nested
-            except Exception as e:
-                sys.stderr.write(f"Reset failed: {e}\n")
-                obs = {"echoed_message": "emergency"}
-
-            # --- LLM CALL ---
-            symptoms = obs.get("echoed_message", "chest pain")
-            prompt = f"Symptoms: {symptoms}. Triage category: home care, clinic visit, urgent care, or emergency?"
+                r = requests.post(f"{ENV_URL}/reset", json={"seed": 42 + i}, timeout=20)
+                # ... rest of reset logic ...
+            except:
+                pass
+            symptoms = obs.get("echoed_message", "No symptoms provided.")
+            # 2. Be EXTREMELY strict with the LLM prompt
+            prompt = (
+                f"Patient symptoms: {symptoms}. "
+                "You must respond with only ONE word from this list: "
+                "[home care, clinic visit, urgent care, emergency]. "
+                "Do not include punctuation or explanations."
+            )
             
             answer = "emergency" # Default fallback
             try:
