@@ -5,4 +5,6 @@ uvicorn
 openai
 pydantic
 python-multipart
+httpx
+requests
 
