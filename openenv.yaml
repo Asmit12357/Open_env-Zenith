@@ -1,7 +1,17 @@
+
 spec_version: 1
-name: my_env
+env_name: "medical_triage"
+port: 7860
+app: "server.app:app"
 type: space
 runtime: fastapi
-app: server.app:app
-port: 7860
-
+tasks:
+  - id: "task_1"
+    grader:
+      block: "print(reward)"
+  - id: "task_2"
+    grader:
+      block: "print(reward)"
+  - id: "task_3"
+    grader:
+      block: "print(reward)"
