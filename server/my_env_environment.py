@@ -55,7 +55,7 @@ class MyEnvironment(Environment):
 
     def step(self, action: MyAction) -> MyObservation:
         """
-        Executes a step. Defensive logic prevents 500 errors.
+        Executes a step. Validates agent input against expected triage categories.
         """
         self._state.step_count += 1
         
@@ -70,19 +70,30 @@ class MyEnvironment(Environment):
         # Standardize the choice
         agent_choice = (msg or treat).strip().lower()
         actual_choice = str(self.current_task.get('correct_triage', "")).strip().lower()
+
+        # Define the set of valid triage categories (nonsense check)
+        valid_categories = {"home care", "clinic visit", "urgent care", "emergency"}
         
         # Reward Logic
         reward = 0.0
-        if agent_choice == actual_choice:
+
+        if agent_choice not in valid_categories:
+            # Complete nonsense gets nothing
+            reward = 0.0
+        elif agent_choice == actual_choice:
+            # Perfect match
             reward = 1.0
         else:
-            # Reward shaping for "Safe but wrong" vs "Dangerous"
+            # Reward shaping for valid but incorrect categories
             if actual_choice == "home care" and agent_choice == "emergency":
+                # Over-cautious (Safe but expensive)
                 reward = 0.1
             elif actual_choice == "emergency" and agent_choice == "home care":
+                # Dangerous mistake
                 reward = 0.0
             else:
-                reward = 0.4
+                # Valid triage category, but not the correct one
+                reward = 0.5
 
         return MyObservation(
             echoed_message=f"Diagnosis: {agent_choice}. Reality: {actual_choice}",
