@@ -1,5 +1,4 @@
 openenv-core
-openenv
 fastapi
 uvicorn
 openai
@@ -7,4 +6,5 @@ pydantic
 python-multipart
 httpx
 requests
+
 
