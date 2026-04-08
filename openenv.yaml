@@ -5,13 +5,3 @@ port: 7860
 app: "server.app:app"
 type: space
 runtime: fastapi
-tasks:
-  - id: "task_1"
-    grader:
-      block: "print(reward)"
-  - id: "task_2"
-    grader:
-      block: "print(reward)"
-  - id: "task_3"
-    grader:
-      block: "print(reward)"
