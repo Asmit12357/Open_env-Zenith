@@ -5,6 +5,7 @@ import json
 import requests
 from openai import OpenAI
 
+# Immediate start for the validator
 print("[START] task=medical_triage", flush=True)
 
 ENV_URL = "https://asmit99-medical-triage-rl.hf.space"
@@ -31,15 +32,15 @@ def get_llm_answer(client, model_name, message):
         )
         return resp.choices[0].message.content.strip().lower()
     except:
-        # fallback safe answer
+        # fallback safe answer for triage
         return "clinic visit"
 
 def run_inference():
-    total_reward = 0.0
-    step_count = 0
+    final_score = 0.0
+    total_steps = 0
 
     try:
-        # --- ENV VARIABLES ---
+        # --- ENV VARIABLES (Injected by Scaler) ---
         api_base = os.environ.get("API_BASE_URL")
         api_key = os.environ.get("API_KEY")
         model_name = os.environ.get("MODEL_NAME")
@@ -53,7 +54,7 @@ def run_inference():
 
         # --- CHECK ENV AVAILABILITY ---
         env_alive = False
-        for _ in range(3):  # reduced retries (fast fail)
+        for _ in range(3):  # Fast retry logic
             if safe_get(f"{ENV_URL}/health"):
                 env_alive = True
                 break
@@ -75,12 +76,12 @@ def run_inference():
         done = False
 
         # --- LOOP ---
-        while not done and step_count < 5:
-            step_count += 1
+        while not done and total_steps < 5:
+            total_steps += 1
 
             prompt = f"Symptoms: {obs.get('echoed_message', '')}. Triage category?"
 
-            # LLM or fallback
+            # LLM call via proxy or local fallback
             if client:
                 answer = get_llm_answer(client, model_name, prompt)
             else:
@@ -102,16 +103,19 @@ def run_inference():
             else:
                 obs = {}
 
+            # Extract results safely
             reward = float(obs.get("reward", 0.0))
-            total_reward += reward
+            final_score += reward
             done = obs.get("done", False)
 
-            print(f"[STEP] step={step_count} reward={reward}", flush=True)
+            # Strict Step Format
+            print(f"[STEP] step={total_steps} reward={reward}", flush=True)
 
-        print(f"[END] task=medical_triage score={total_reward} steps={step_count}", flush=True)
+        # Strict End Format (score and steps are the required keys)
+        print(f"[END] task=medical_triage score={final_score} steps={total_steps}", flush=True)
 
     except Exception as e:
-        # FINAL SAFETY NET — NEVER FAIL
+        # Final safety net to prevent non-zero exit code
         print(f"[ERROR] {str(e)}", flush=True)
         print("[END] task=medical_triage score=0 steps=0", flush=True)
 
