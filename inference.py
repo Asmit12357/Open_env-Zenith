@@ -5,7 +5,7 @@ import requests
 from pathlib import Path
 from openai import OpenAI
 
-# --- 1. Load .env for Local Development (Friend's Suggestion) ---
+# --- 1. Load .env for Local Development ---
 def load_dotenv():
     env_path = Path(__file__).parent / ".env"
     if env_path.exists():
@@ -19,8 +19,6 @@ def load_dotenv():
 load_dotenv()
 
 # --- 2. Configuration (Prioritizing Scaler Variables) ---
-IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
-# Use the injected API_KEY first, fallback to HF_TOKEN for local
 API_KEY = os.getenv("API_KEY") or os.getenv("HF_TOKEN") or "EMPTY_KEY"
 API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
 MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-7B-Instruct"
@@ -30,25 +28,31 @@ ENV_URL = "https://asmit99-medical-triage-rl.hf.space"
 
 def run_inference():
     # MUST match the IDs in your openenv.yaml exactly
+    # This loop ensures all 3 tasks are executed in one python invocation
     task_ids = ["task_1", "task_2", "task_3"]
 
     try:
         client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
         for t_id in task_ids:
-            # Each task needs its own [START] block
+            # --- START LOG ---
             print(f"[START] task={t_id}", flush=True)
             
             # --- RESET ---
             try:
+                # Use seed to vary the case if your environment supports it
                 r = requests.post(f"{ENV_URL}/reset", json={"seed": 42}, timeout=20)
-                obs = r.json()
-            except:
-                obs = {"echoed_message": "emergency"} # Fallback
+                r_json = r.json()
+                obs = r_json.get("observation", r_json) # Handle flat or nested
+            except Exception as e:
+                sys.stderr.write(f"Reset failed: {e}\n")
+                obs = {"echoed_message": "emergency"}
 
             # --- LLM CALL ---
-            prompt = f"Symptoms: {obs.get('observation', {}).get('echoed_message', 'chest pain')}. Triage category?"
-            answer = "emergency" # Default
+            symptoms = obs.get("echoed_message", "chest pain")
+            prompt = f"Symptoms: {symptoms}. Triage category: home care, clinic visit, urgent care, or emergency?"
+            
+            answer = "emergency" # Default fallback
             try:
                 resp = client.chat.completions.create(
                     model=MODEL_NAME,
@@ -56,28 +60,28 @@ def run_inference():
                     timeout=15
                 )
                 answer = resp.choices[0].message.content.strip().lower()
-            except:
-                pass
+            except Exception as e:
+                sys.stderr.write(f"LLM failed: {e}\n")
 
             # --- STEP ---
             try:
                 s_res = requests.post(f"{ENV_URL}/step", json={"action": {"message": answer}}, timeout=20)
                 s_data = s_res.json()
                 
-                # Reward check for nested or flat JSON
+                # Check for reward in both common locations
                 raw_reward = s_data.get("reward")
                 if raw_reward is None:
                     raw_reward = s_data.get("observation", {}).get("reward", 0.0)
-            except:
+            except Exception as e:
+                sys.stderr.write(f"Step failed: {e}\n")
                 raw_reward = 0.0
 
             # --- THE 0.01 - 0.99 RULE ---
-            # Clamping prevents boundary crashes on 1.0 or 0.0
+            # Prevents boundary crashes and satisfies the (0, 1) requirement
             safe_score = max(0.01, min(0.99, float(raw_reward)))
 
+            # --- STEP AND END LOGS ---
             print(f"[STEP] step=1 reward={safe_score}", flush=True)
-            
-            # Each task needs its own [END] block matching the ID
             print(f"[END] task={t_id} score={safe_score} steps=1", flush=True)
 
     except Exception as e:
