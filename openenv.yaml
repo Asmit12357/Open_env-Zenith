@@ -7,10 +7,39 @@ runtime: fastapi
 tasks:
   - id: "task_1"
     grader:
-      block: "print(reward)"
+      block: |
+        # Task 1: Minor case (seed=1 → index 0)
+        # Evaluate the agent's triage decision from the step response
+        obs = observation.get("echoed_message", "") if isinstance(observation, dict) else str(observation)
+        # Parse out the reality from "Diagnosis: X. Reality: Y"
+        correct = ""
+        if "Reality:" in obs:
+            correct = obs.split("Reality:")[-1].strip().rstrip(".")
+        raw_reward = float(reward) if reward is not None else 0.0
+        # Enforce valid range
+        reward = max(0.0, min(1.0, raw_reward))
+        print(reward)
+ 
   - id: "task_2"
     grader:
-      block: "print(reward)"
+      block: |
+        # Task 2: Urgent case (seed=2 → index 1)
+        obs = observation.get("echoed_message", "") if isinstance(observation, dict) else str(observation)
+        correct = ""
+        if "Reality:" in obs:
+            correct = obs.split("Reality:")[-1].strip().rstrip(".")
+        raw_reward = float(reward) if reward is not None else 0.0
+        reward = max(0.0, min(1.0, raw_reward))
+        print(reward)
+ 
   - id: "task_3"
     grader:
-      block: "print(reward)"
+      block: |
+        # Task 3: Emergency case (seed=3 → index 2)
+        obs = observation.get("echoed_message", "") if isinstance(observation, dict) else str(observation)
+        correct = ""
+        if "Reality:" in obs:
+            correct = obs.split("Reality:")[-1].strip().rstrip(".")
+        raw_reward = float(reward) if reward is not None else 0.0
+        reward = max(0.0, min(1.0, raw_reward))
+        print(reward)
